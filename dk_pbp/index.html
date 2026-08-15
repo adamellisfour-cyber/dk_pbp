@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07110d">
+  <title>NFL Live Numbers</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <button class="brand" data-page="games" aria-label="NFL Live Numbers home">
+      <span class="brand-mark">#</span><span>NFL <b>LIVE NUMBERS</b></span>
+    </button>
+    <div id="connectionPill" class="connection-pill idle"><i></i><span>READY</span></div>
+  </header>
+
+  <main>
+    <section id="gamesPage" class="page active">
+      <div class="eyebrow">GAME SELECT</div>
+      <div class="title-row"><h1>NFL Games</h1><button id="refreshGames" class="icon-btn" aria-label="Refresh games">↻</button></div>
+      <p id="gamesMeta" class="muted">Loading the ESPN scoreboard…</p>
+      <div id="gamesList" class="games-list"><div class="skeleton card"></div></div>
+      <div class="date-picker card">
+        <label for="scoreboardDate">Open another date</label>
+        <div class="inline"><input id="scoreboardDate" type="date"><button id="loadDate" class="secondary">LOAD</button></div>
+      </div>
+    </section>
+
+    <section id="gamePage" class="page">
+      <button class="back-link" data-page="games">← ALL GAMES</button>
+      <div id="scoreboard" class="scoreboard card">
+        <div class="team away"><img alt=""><span class="abbr">AWAY</span><strong>0</strong></div>
+        <div class="game-state"><b>—</b><span>WAITING</span></div>
+        <div class="team home"><strong>0</strong><span class="abbr">HOME</span><img alt=""></div>
+      </div>
+      <div id="situationBar" class="situation-bar"></div>
+      <div class="live-strip">
+        <div><span id="liveDot" class="dot"></span><b id="liveState">CONNECTING</b></div>
+        <div class="live-times"><span id="lastCheck">Last check: —</span><span id="lastPlayTime">New play: —</span></div>
+        <span id="sourceName" class="source-badge">FASTCAST + CORE</span>
+      </div>
+
+      <article id="latestPlay" class="latest card empty">
+        <div class="section-label">LATEST PLAY</div>
+        <div class="latest-situation">WAITING FOR PLAY DATA</div>
+        <div class="latest-description">Select a game to begin monitoring.</div>
+      </article>
+
+      <button id="markPlay" class="mark-button">MARK PLAY NOW <small>tap when the TV play ends</small></button>
+      <div id="markConfirmation" class="toast" role="status"></div>
+
+      <div class="feed-head">
+        <div><div class="eyebrow">PLAY-BY-PLAY</div><h2>Game Feed</h2></div>
+        <button id="orderToggle" class="secondary compact">NEWEST FIRST</button>
+      </div>
+      <div class="filter-scroll" id="filters">
+        <button class="filter active" data-filter="all">ALL</button><button class="filter" data-filter="pass">PASS</button>
+        <button class="filter" data-filter="rush">RUSH</button><button class="filter" data-filter="penalty">PENALTY</button>
+        <button class="filter" data-filter="sack">SACK</button><button class="filter" data-filter="turnover">TURNOVER</button>
+        <button class="filter" data-filter="scoring">SCORING</button><button class="filter" data-filter="special">SPECIAL</button>
+      </div>
+      <input id="playSearch" class="search" type="search" placeholder="Search #26, Barkley, penalty…">
+      <div id="playFeed" class="play-feed"></div>
+    </section>
+
+    <section id="labPage" class="page">
+      <div class="eyebrow">MEASURED, NEVER ESTIMATED</div><h1>Latency Lab</h1>
+      <p class="muted">TV delay statistics appear only after you use <b>MARK PLAY NOW</b> and the next ESPN play arrives.</p>
+      <div class="lab-settings card">
+        <label>Speed Lane interval<select id="pollInterval"><option value="0.5" selected>0.5 second - MAX SPEED</option><option value="1">1 second</option><option value="2">2 seconds</option><option value="3">3 seconds</option><option value="5">5 seconds</option><option value="10">10 seconds</option></select></label>
+        <label class="check"><input id="compareSources" type="checkbox"><span>Compare CDN + Summary</span></label>
+        <label>Reconciliation source<select id="preferredSource"><option value="summary" selected>ESPN Summary</option><option value="cdn">ESPN CDN</option></select></label>
+        <p class="muted lab-note">Fastcast pushes ESPN updates instantly. The 0.5-second Core lane remains active as an automatic fallback and race measurement.</p>
+        <button id="applyMonitor" class="primary">APPLY LIVE SETTINGS</button>
+      </div>
+      <h2>PBP Delivery Performance</h2>
+      <div id="statsGrid" class="stats-grid"></div>
+      <div class="metric-note" id="resolutionMetric"></div>
+      <div class="section-title"><h2>Endpoint Race</h2><a id="csvExport" class="secondary compact" href="#">EXPORT CSV</a></div>
+      <div class="table-wrap card"><table><thead><tr><th>Play</th><th>Fastcast first</th><th>Core first</th><th>Summary first</th><th>CDN first</th><th>Winner</th></tr></thead><tbody id="comparisonTable"><tr><td colspan="6">Enable endpoint comparison to collect evidence.</td></tr></tbody></table></div>
+      <h2>Source Health</h2><div id="sourceHealth" class="health-grid"></div>
+    </section>
+
+    <section id="debugPage" class="page">
+      <div class="eyebrow">DEVELOPER TOOLS</div><h1>Raw ESPN Data</h1>
+      <div class="raw-tabs"><button data-raw="scoreboard" class="active">SCOREBOARD</button><button data-raw="fastcast">FASTCAST</button><button data-raw="core">CORE PLAY</button><button data-raw="core_situation">CORE SITUATION</button><button data-raw="summary">SUMMARY</button><button data-raw="cdn">CDN PBP</button><button data-raw="rosters">ROSTERS</button></div>
+      <div class="raw-actions"><input id="rawSearch" class="search" placeholder="Find a JSON field or value"><button id="copyRaw" class="secondary">COPY</button></div>
+      <pre id="rawViewer">Select a monitored game, then choose a payload.</pre>
+    </section>
+
+    <section id="historyPage" class="page">
+      <div class="eyebrow">CURRENT BROWSER SESSION</div><h1>Game History</h1><div id="historyList" class="history-list"></div>
+    </section>
+
+    <section id="accessPage" class="page">
+      <div class="eyebrow">SHARE THE LIVE APP</div><h1>Open on Any Device</h1>
+      <div class="access card"><img id="qrImage" alt="QR code for this app"><div><label>PUBLIC LINK</label><a id="computerUrl"></a><label>PHONE</label><a id="phoneUrl"></a><p>Share this link with coworkers. No installation, Python, batch file, or same Wi-Fi network is required.</p></div></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Primary navigation">
+    <button data-page="games" class="active"><span>▦</span>GAMES</button>
+    <button data-page="game"><span>▶</span>LIVE</button>
+    <button data-page="lab"><span>⌁</span>LAB</button>
+    <button data-page="debug"><span>{ }</span>RAW</button>
+    <button data-page="history"><span>◷</span>HISTORY</button>
+    <button data-page="access"><span>⌁</span>PHONE</button>
+  </nav>
+  <script src="/browser-api.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
